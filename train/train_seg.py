@@ -62,13 +62,32 @@ def evaluate_seg(
     true_positive = confusion.diag().float()
     union = confusion.sum(dim=0) + confusion.sum(dim=1) - true_positive
     iou = true_positive / union.clamp_min(1)
+    total_pixels = confusion.sum().float()
+    spill_true_positive = confusion[1, 1].float()
+    spill_false_positive = confusion[:, 1].sum().float() - spill_true_positive
+    spill_false_negative = confusion[1, :].sum().float() - spill_true_positive
     present = union > 0
     non_background = present.clone()
     non_background[0] = False
     result = {
-        f"class_{class_id}_iou": iou[class_id].item()
-        for class_id in range(num_classes)
+        "accuracy": (
+            true_positive.sum() / total_pixels.clamp_min(1)
+        ).item(),
+        "precision": (
+            spill_true_positive
+            / (spill_true_positive + spill_false_positive).clamp_min(1)
+        ).item(),
+        "recall": (
+            spill_true_positive
+            / (spill_true_positive + spill_false_negative).clamp_min(1)
+        ).item(),
     }
+    result.update(
+        {
+            f"class_{class_id}_iou": iou[class_id].item()
+            for class_id in range(num_classes)
+        }
+    )
     result["oil_spill_iou"] = iou[1].item()
     result["mean_iou"] = iou[present].mean().item() if present.any() else 0.0
     result["mean_iou_no_background"] = (
@@ -185,6 +204,9 @@ def train_seg(
         print(
             f"Epoch {epoch + 1}/{epochs} [{stage}] "
             f"loss={average_loss:.4f} "
+            f"accuracy={metrics['accuracy']:.4f} "
+            f"precision={metrics['precision']:.4f} "
+            f"recall={metrics['recall']:.4f} "
             f"oil_spill_iou={metrics['oil_spill_iou']:.4f} "
             f"mean_iou_no_background={metrics['mean_iou_no_background']:.4f}"
         )

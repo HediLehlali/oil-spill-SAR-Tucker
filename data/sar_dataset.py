@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from PIL import Image, ImageEnhan   ce
+from PIL import Image, ImageEnhance
 from torch.utils.data import Dataset
 
 

@@ -61,8 +61,10 @@ python -m starter.starter_seg
 The script uses the dataset's existing train and validation splits. For a
 different dataset location, set `--data-root`. It trains the decoder/detail
 branch first, uses class-weighted cross-entropy plus Dice loss, selects the
-checkpoint by validation foreground IoU, and reports per-class IoU, mean IoU,
-and mean IoU excluding the background on the validation set.
+checkpoint by validation foreground IoU, and reports validation accuracy,
+precision, and recall. Precision and recall are calculated for the oil-spill
+foreground class; accuracy is calculated over all pixels. IoU metrics are also
+reported and the oil-spill IoU remains the checkpoint-selection criterion.
 
 The default batch size is 2 to limit memory use at full image resolution. If
 the GPU has enough memory, increase it with `--batch-size`. The encoder remains
