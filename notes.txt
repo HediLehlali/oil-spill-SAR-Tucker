@@ -1,0 +1,7 @@
+Model	d_model	Heads	Layers	Head dim	Params	Patch
+ViT-S/14	384	6	12	64	21M	14
+ViT-B/14	768	12	12	64	86M	14
+
+ViT-L/14	1024	16	24	64	300M	14
+
+ViT-g/14	1536	24	40	64	1.1B	14
