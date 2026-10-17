@@ -20,18 +20,41 @@ import torch.nn as nn
 from models.tucker_attention import TuckerViTAttention
 
 
+class ViTBackboneAdapter(nn.Module):
+    """Expose a pretrained ViT-family backbone through a common `.vit` path."""
+
+    def __init__(self, backbone: nn.Module) -> None:
+        super().__init__()
+        self.vit = backbone
+        self.config = backbone.config
+
+    def forward(self, *args, **kwargs):
+        return self.vit(*args, **kwargs)
+
+
 def load_vit(model_name: str, num_labels: int, device="cuda"):
-    """Load a pretrained ViT classifier and reset the head to `num_labels`.
+    """Load a pretrained ViT-family encoder, adapting DINOv2 to the ViT path.
 
     Canonical endpoints (Table 5 / Appendix C.1.3 -- note the paper text has a
     copy/paste slip listing vit-large for every row; use the matching size):
         ViT-B/16  -> 'google/vit-base-patch16-224-in21k'   (d=768,  H=12, N=196)
         ViT-L/32  -> 'google/vit-large-patch32-224-in21k'  (d=1024, H=16, N=49)
-        ViT-H/14  -> 'google/vit-huge-patch14-224-in21k'   (d=1280, H=16) # ~ 'G/14'
+        ViT-L/14  -> 'facebook/dinov2-large'                (d=1024, H=16, N=37)
     """
+    from transformers import AutoConfig
+
+    config = AutoConfig.from_pretrained(model_name)
+    if config.model_type == "dinov2":
+        from transformers import Dinov2Model
+
+        backbone = Dinov2Model.from_pretrained(model_name).to(device)
+        return ViTBackboneAdapter(backbone)
+
     from transformers import ViTForImageClassification
+
     model = ViTForImageClassification.from_pretrained(
-        model_name, num_labels=num_labels, ignore_mismatched_sizes=True)
+        model_name, num_labels=num_labels, ignore_mismatched_sizes=True
+    )
     return model.to(device)
 
 

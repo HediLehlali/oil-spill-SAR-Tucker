@@ -16,7 +16,7 @@ class ViT_Tucker_Seg(nn.Module):
         self,
         num_classes: int = 5,
         ranks: Tuple[int, int, int] = (4, 64, 64),
-        model_name: str = "WinKawaks/vit-small-patch16-224",
+        model_name: str = "facebook/dinov2-large",
         use_tucker: bool = False,
     ) -> None:
         super().__init__()
@@ -58,19 +58,20 @@ class ViT_Tucker_Seg(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         _, _, height, width = x.shape
-        if height % self.patch_size or width % self.patch_size:
-            raise ValueError(
-                f"Input dimensions {(height, width)} must be divisible by "
-                f"the ViT patch size {self.patch_size}"
-            )
+        pad_height = (-height) % self.patch_size
+        pad_width = (-width) % self.patch_size
+        pixel_values = F.pad(x, (0, pad_width, 0, pad_height), mode="replicate")
 
-        outputs = self.vit.vit(
-            pixel_values=x,
-            interpolate_pos_encoding=True,
-        ).last_hidden_state
+        if self.vit.config.model_type != "dinov2":
+            outputs = self.vit.vit(
+                pixel_values=pixel_values,
+                interpolate_pos_encoding=True,
+            ).last_hidden_state
+        else:
+            outputs = self.vit.vit(pixel_values=pixel_values).last_hidden_state
         patch_tokens = outputs[:, 1:, :]
-        grid_height = height // self.patch_size
-        grid_width = width // self.patch_size
+        grid_height = pixel_values.shape[-2] // self.patch_size
+        grid_width = pixel_values.shape[-1] // self.patch_size
         if patch_tokens.shape[1] != grid_height * grid_width:
             raise RuntimeError(
                 "The ViT token count does not match its input patch grid: "

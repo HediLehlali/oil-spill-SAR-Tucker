@@ -10,6 +10,13 @@ from models.vit_tucker_seg import ViT_Tucker_Seg
 from train.train_seg import train_seg
 
 
+VIT_MODELS = {
+    "vit-s16": "WinKawaks/vit-small-patch16-224",
+    "vit-b16": "google/vit-base-patch16-224-in21k",
+    "vit-l14": "facebook/dinov2-large",
+}
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Train and evaluate the SAR oil-spill segmentation model."
@@ -17,7 +24,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--data-root", default="Deep_SAR/versions/1")
     parser.add_argument("--output", default="checkpoints/sar_vit_best.pt")
     parser.add_argument(
-        "--model-name", default="WinKawaks/vit-small-patch16-224"
+        "--model",
+        choices=VIT_MODELS,
+        default="vit-l14",
+        help="ViT preset to use (default: ViT-L/14)",
+    )
+    parser.add_argument(
+        "--model-name",
+        default=None,
+        help="custom Hugging Face model ID or local model directory; overrides --model",
     )
     parser.add_argument("--num-classes", type=int, default=2)
     parser.add_argument("--image-width", type=int, default=256)
@@ -46,6 +61,7 @@ def main() -> None:
     device = torch.device(
         args.device or ("cuda" if torch.cuda.is_available() else "cpu")
     )
+    model_name = args.model_name or VIT_MODELS[args.model]
     image_size = (args.image_width, args.image_height)
     common = {
         "root": args.data_root,
@@ -68,9 +84,10 @@ def main() -> None:
         f"Device: {device}; samples: {len(train_set)} train, "
         f"{len(val_set)} validation"
     )
+    print(f"ViT encoder: {model_name}")
     model = ViT_Tucker_Seg(
         num_classes=args.num_classes,
-        model_name=args.model_name,
+        model_name=model_name,
         use_tucker=args.tucker,
     )
     best_metrics = train_seg(
