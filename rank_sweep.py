@@ -34,7 +34,7 @@ from train.train_seg import train_seg
 
 
 DEFAULT_TIED_R = [64, 48, 32, 24, 16, 12]
-DEFAULT_R1_SWEEP = [4, 2, 1]
+DEFAULT_R1_SWEEP = [6, 4, 2, 1]
 
 
 def build_rank_grid(
