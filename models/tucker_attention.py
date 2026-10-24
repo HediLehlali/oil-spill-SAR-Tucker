@@ -17,12 +17,20 @@ def _mode_dot(T: torch.Tensor, M: torch.Tensor, mode: int) -> torch.Tensor:
     return torch.movedim(out, 0, mode)
 
 
-def hosvd(T: torch.Tensor, ranks: Tuple[int, int, int]):
+# Full left singular vectors per (model, layer, tensor). The SVDs do not depend on
+# the ranks or the seed, so a rank sweep only pays for them once.
+_HOSVD_CACHE: dict = {}
+
+
+def hosvd(T: torch.Tensor, ranks: Tuple[int, int, int], cache_key=None):
     """Truncated higher-order SVD. Returns (core, [U1, U2, U3])."""
-    factors = []
-    for mode, r in enumerate(ranks):
-        U, _, _ = torch.linalg.svd(_unfold(T, mode), full_matrices=False)
-        factors.append(U[:, :r].contiguous())
+    full = _HOSVD_CACHE.get(cache_key) if cache_key is not None else None
+    if full is None:
+        full = [torch.linalg.svd(_unfold(T, m), full_matrices=False)[0].cpu()
+                for m in range(3)]
+        if cache_key is not None:
+            _HOSVD_CACHE[cache_key] = full
+    factors = [full[m][:, :r].to(T.device).contiguous() for m, r in enumerate(ranks)]
     core = T
     for mode, U in enumerate(factors):
         core = _mode_dot(core, U.t(), mode)
@@ -71,21 +79,26 @@ class TuckerViTAttention(nn.Module):
 
     @classmethod
     def from_mha(cls, vit_attention, ranks, ranks_post=None,
-                 share_kv_downproj: bool = False):
-        """Build a Tucker block from a pretrained ViTAttention via HOSVD."""
+                 share_kv_downproj: bool = False, cache_key=None):
+        """Build a Tucker block from a pretrained ViTAttention via HOSVD.
+
+        The decomposition runs on the GPU when available (~30x faster than CPU).
+        `cache_key` identifies the layer so its SVDs can be reused across ranks.
+        """
         self_attn = vit_attention.attention
         out_dense = vit_attention.output.dense
         d_model = self_attn.query.in_features
         n_heads = getattr(self_attn, "num_attention_heads")
         d_head = d_model // n_heads
 
-        Wq = self_attn.query.weight.data
-        Wk = self_attn.key.weight.data
-        Wv = self_attn.value.weight.data
-        Wo = out_dense.weight.data
+        dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        Wq = self_attn.query.weight.data.to(dev)
+        Wk = self_attn.key.weight.data.to(dev)
+        Wv = self_attn.value.weight.data.to(dev)
+        Wo = out_dense.weight.data.to(dev)
 
-        W  = torch.empty(n_heads, d_model, d_model)
-        Wt = torch.empty(n_heads, d_model, d_model)
+        W  = torch.empty(n_heads, d_model, d_model, device=dev)
+        Wt = torch.empty(n_heads, d_model, d_model, device=dev)
         for i in range(n_heads):
             sl = slice(i * d_head, (i + 1) * d_head)
             Wq_i = Wq[sl, :].t()
@@ -97,16 +110,17 @@ class TuckerViTAttention(nn.Module):
 
         mod = cls(d_model, n_heads, ranks, ranks_post, share_kv_downproj)
         with torch.no_grad():
-            C, (U1, U2, U3) = hosvd(W, mod.ranks)
+            key = (lambda s: None if cache_key is None else (*cache_key, s))
+            C, (U1, U2, U3) = hosvd(W, mod.ranks, key("pre"))
             mod.C.copy_(C); mod.U1.copy_(U1); mod.U2.copy_(U2); mod.U3.copy_(U3)
-            Ct, (Ut1, Ut2, Ut3) = hosvd(Wt, mod.ranks_post)
+            Ct, (Ut1, Ut2, Ut3) = hosvd(Wt, mod.ranks_post, key("post"))
             mod.Ct.copy_(Ct); mod.Ut1.copy_(Ut1); mod.Ut2.copy_(Ut2)
             if not share_kv_downproj:
                 mod.Ut3.copy_(Ut3)
 
-            b_out = out_dense.bias.data.clone()
+            b_out = out_dense.bias.data.to(dev).clone()
             if self_attn.value.bias is not None:
-                bv = self_attn.value.bias.data
+                bv = self_attn.value.bias.data.to(dev)
                 for i in range(n_heads):
                     sl = slice(i * d_head, (i + 1) * d_head)
                     b_out = b_out + bv[sl] @ Wo[:, sl].t()

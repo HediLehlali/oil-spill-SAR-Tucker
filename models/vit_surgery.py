@@ -69,12 +69,13 @@ def tuckerize_vit(model, ranks: Tuple[int, int, int],
 
     mha_params = 0
     tuck_params = 0
-    for layer in layers:
+    for idx, layer in enumerate(layers):
         old = layer.attention                       # ViTAttention
         # count MHA Q,K,V,O weights (+biases) of the block being replaced
         mha_params += sum(p.numel() for p in old.parameters())
         new = TuckerViTAttention.from_mha(
-            old, ranks, ranks_post, share_kv_downproj).to(
+            old, ranks, ranks_post, share_kv_downproj,
+            cache_key=(cfg._name_or_path, idx)).to(
             next(old.parameters()).device, dtype=next(old.parameters()).dtype)
         layer.attention = new
         tuck_params += new.num_attention_params()
