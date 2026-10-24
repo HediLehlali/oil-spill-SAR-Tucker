@@ -124,6 +124,31 @@ Run the full sweep and average over three training seeds:
 python rank_sweep.py --seeds 3 --epochs 80
 ```
 
+### Parallel rank evaluation (faster)
+
+The rank sweep can be parallelized across multiple rank configurations to speed
+up evaluation on multi-GPU systems. Enable parallelization with `--parallel`:
+
+```powershell
+python rank_sweep.py --seeds 3 --epochs 80 --parallel
+```
+
+By default, the number of parallel workers is set to the number of GPUs on your
+system (or 1 if no CUDA device is detected). To manually control the number of
+workers, use `--parallel-workers`:
+
+```powershell
+python rank_sweep.py --seeds 3 --epochs 80 --parallel --parallel-workers 2
+```
+
+**Notes:**
+- Phase A (baseline and reference configurations) always runs sequentially for stability.
+- Phase B (rank sweep) parallelizes across the rank grid when `--parallel` is enabled.
+- Each worker creates its own data loaders to avoid serialization issues with PyTorch.
+- Parallelization can significantly reduce total sweep time, especially when running many
+  seeds or large rank grids. On a single GPU, the benefit is mainly from overlapping I/O
+  and computation across rank configurations.
+
 Results are written to `results_sar_rank_sweep.csv`. The CSV includes pixel
 accuracy, foreground oil-spill IoU, non-background mean IoU, attention
 parameter count, and compression ratio, with means and standard deviations
