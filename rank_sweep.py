@@ -12,6 +12,9 @@ Quick pipeline check:
 
 Full sweep:
     python rank_sweep.py --seeds 3 --epochs 80
+
+Parallel sweep (faster):
+    python rank_sweep.py --seeds 3 --epochs 80 --parallel
 """
 from __future__ import annotations
 
@@ -20,6 +23,7 @@ import csv
 import random
 import statistics
 import tempfile
+from multiprocessing import Pool
 from pathlib import Path
 from typing import Any
 
@@ -118,6 +122,122 @@ def _mean_std(values: list[float]) -> tuple[float, float]:
     )
 
 
+def _train_config_task(
+    tag: str,
+    ranks: tuple[int, int, int] | None,
+    seeds: list[int],
+    num_classes: int,
+    model_name: str,
+    train_set: Subset | Any,
+    val_set: Subset | Any,
+    device: torch.device,
+    epochs: int,
+    learning_rate: float,
+    encoder_learning_rate: float,
+    unfreeze_last: int,
+    stage1_epochs: int,
+    patience: int,
+    batch_size: int,
+    num_workers: int,
+    n_heads: int,
+    d_model: int,
+    mha_attention_params: int,
+) -> dict[str, Any]:
+    """Train and evaluate a single rank configuration across multiple seeds."""
+    per_seed: list[dict[str, float]] = []
+    attention_params: int | None = None
+    
+    loader_options = {
+        "batch_size": batch_size,
+        "num_workers": num_workers,
+        "pin_memory": device.type == "cuda",
+    }
+    
+    for seed in seeds:
+        _seed_everything(seed)
+        train_loader = DataLoader(train_set, shuffle=True, **loader_options)
+        val_loader = DataLoader(val_set, shuffle=False, **loader_options)
+        
+        model = ViT_Tucker_Seg(
+            num_classes=num_classes,
+            ranks=ranks or (min(4, n_heads), min(64, d_model), min(64, d_model)),
+            model_name=model_name,
+            use_tucker=ranks is not None,
+        )
+        if ranks is None:
+            attention_params = sum(
+                parameter.numel()
+                for layer in model.vit.vit.encoder.layer
+                for parameter in layer.attention.parameters()
+            )
+        else:
+            attention_params = attention_param_report(model.vit)
+
+        with tempfile.TemporaryDirectory(prefix="sar-rank-sweep-") as temp_dir:
+            checkpoint = Path(temp_dir) / "best.pt"
+            try:
+                metrics = train_seg(
+                    model,
+                    train_loader,
+                    val_loader,
+                    num_classes=num_classes,
+                    device=device,
+                    epochs=epochs,
+                    lr=learning_rate,
+                    encoder_lr=encoder_learning_rate,
+                    unfreeze_last=unfreeze_last,
+                    stage1_epochs=stage1_epochs,
+                    patience=patience,
+                    checkpoint_path=checkpoint,
+                )
+                per_seed.append(metrics)
+            finally:
+                del model
+                del train_loader
+                del val_loader
+                if device.type == "cuda":
+                    torch.cuda.empty_cache()
+
+    assert attention_params is not None
+    row: dict[str, Any] = {
+        "tag": tag,
+        "r1": ranks[0] if ranks else "",
+        "r2": ranks[1] if ranks else "",
+        "r3": ranks[2] if ranks else "",
+        "n_seeds": len(per_seed),
+        "attn_params": attention_params,
+        "attention_reduction_pct": (
+            100.0 * (1.0 - attention_params / mha_attention_params)
+            if ranks is not None
+            else 0.0
+        ),
+        "compression_ratio": (
+            mha_attention_params / attention_params
+            if ranks is not None
+            else 1.0
+        ),
+    }
+    for metric_name in (
+        "accuracy",
+        "oil_spill_iou",
+        "mean_iou_no_background",
+        "precision",
+        "recall",
+    ):
+        mean, std = _mean_std([result[metric_name] for result in per_seed])
+        row[f"{metric_name}_mean"] = mean
+        row[f"{metric_name}_std"] = std
+
+    print(
+        f"[{tag}] ranks={ranks or 'MHA'} params={attention_params:,} "
+        f"reduction={row['attention_reduction_pct']:.1f}% "
+        f"accuracy={row['accuracy_mean']:.4f} "
+        f"oil_iou={row['oil_spill_iou_mean']:.4f} "
+        f"mean_iou_no_bg={row['mean_iou_no_background_mean']:.4f}"
+    )
+    return row
+
+
 def run(args: argparse.Namespace) -> None:
     if args.seeds < 1:
         raise ValueError("--seeds must be at least 1")
@@ -164,13 +284,6 @@ def run(args: argparse.Namespace) -> None:
     if not len(train_set) or not len(val_set):
         raise ValueError("The rank sweep requires non-empty train and validation sets")
 
-    loader_options = {
-        "batch_size": args.batch_size,
-        "num_workers": args.num_workers,
-        "pin_memory": device.type == "cuda",
-    }
-    train_loader = DataLoader(train_set, shuffle=True, **loader_options)
-    val_loader = DataLoader(val_set, shuffle=False, **loader_options)
     print(
         f"[data] {len(train_set)} train / {len(val_set)} validation samples; "
         f"{args.num_classes} classes"
@@ -194,92 +307,30 @@ def run(args: argparse.Namespace) -> None:
             f"{n_heads} attention heads"
         )
 
-    def train_config(tag: str, ranks: tuple[int, int, int] | None) -> dict[str, Any]:
-        per_seed: list[dict[str, float]] = []
-        attention_params: int | None = None
-        for seed in seeds:
-            _seed_everything(seed)
-            model = ViT_Tucker_Seg(
-                num_classes=args.num_classes,
-                ranks=ranks or (min(4, n_heads), min(64, d_model), min(64, d_model)),
-                model_name=args.model_name,
-                use_tucker=ranks is not None,
-            )
-            if ranks is None:
-                attention_params = sum(
-                    parameter.numel()
-                    for layer in model.vit.vit.encoder.layer
-                    for parameter in layer.attention.parameters()
-                )
-            else:
-                attention_params = attention_param_report(model.vit)
-
-            with tempfile.TemporaryDirectory(prefix="sar-rank-sweep-") as temp_dir:
-                checkpoint = Path(temp_dir) / "best.pt"
-                try:
-                    metrics = train_seg(
-                        model,
-                        train_loader,
-                        val_loader,
-                        num_classes=args.num_classes,
-                        device=device,
-                        epochs=epochs,
-                        lr=args.learning_rate,
-                        encoder_lr=args.encoder_learning_rate,
-                        unfreeze_last=args.unfreeze_last,
-                        stage1_epochs=args.stage1_epochs,
-                        patience=args.patience,
-                        checkpoint_path=checkpoint,
-                    )
-                    per_seed.append(metrics)
-                finally:
-                    del model
-                    if device.type == "cuda":
-                        torch.cuda.empty_cache()
-
-        assert attention_params is not None
-        row: dict[str, Any] = {
-            "tag": tag,
-            "r1": ranks[0] if ranks else "",
-            "r2": ranks[1] if ranks else "",
-            "r3": ranks[2] if ranks else "",
-            "n_seeds": len(per_seed),
-            "attn_params": attention_params,
-            "attention_reduction_pct": (
-                100.0 * (1.0 - attention_params / mha_attention_params)
-                if ranks is not None
-                else 0.0
-            ),
-            "compression_ratio": (
-                mha_attention_params / attention_params
-                if ranks is not None
-                else 1.0
-            ),
-        }
-        for metric_name in (
-            "accuracy",
-            "oil_spill_iou",
-            "mean_iou_no_background",
-            "precision",
-            "recall",
-        ):
-            mean, std = _mean_std([result[metric_name] for result in per_seed])
-            row[f"{metric_name}_mean"] = mean
-            row[f"{metric_name}_std"] = std
-
-        print(
-            f"[{tag}] ranks={ranks or 'MHA'} params={attention_params:,} "
-            f"reduction={row['attention_reduction_pct']:.1f}% "
-            f"accuracy={row['accuracy_mean']:.4f} "
-            f"oil_iou={row['oil_spill_iou_mean']:.4f} "
-            f"mean_iou_no_bg={row['mean_iou_no_background_mean']:.4f}"
-        )
-        return row
-
     rows: list[dict[str, Any]] = []
 
     print("\n=== PHASE A: baseline and reference ranks ===")
-    baseline = train_config("MHA", None)
+    baseline = _train_config_task(
+        "MHA",
+        None,
+        seeds,
+        args.num_classes,
+        args.model_name,
+        train_set,
+        val_set,
+        device,
+        epochs,
+        args.learning_rate,
+        args.encoder_learning_rate,
+        args.unfreeze_last,
+        args.stage1_epochs,
+        args.patience,
+        args.batch_size,
+        args.num_workers,
+        n_heads,
+        d_model,
+        mha_attention_params,
+    )
     rows.append(baseline)
     reference_ranks = [
         (min(4, n_heads), min(64, d_model), min(64, d_model)),
@@ -288,7 +339,28 @@ def run(args: argparse.Namespace) -> None:
     completed = {tuple(row[key] for key in ("r1", "r2", "r3")) for row in rows}
     for ranks in reference_ranks:
         if ranks not in completed:
-            rows.append(train_config(f"ref_{ranks[0]}_{ranks[1]}_{ranks[2]}", ranks))
+            row = _train_config_task(
+                f"ref_{ranks[0]}_{ranks[1]}_{ranks[2]}",
+                ranks,
+                seeds,
+                args.num_classes,
+                args.model_name,
+                train_set,
+                val_set,
+                device,
+                epochs,
+                args.learning_rate,
+                args.encoder_learning_rate,
+                args.unfreeze_last,
+                args.stage1_epochs,
+                args.patience,
+                args.batch_size,
+                args.num_workers,
+                n_heads,
+                d_model,
+                mha_attention_params,
+            )
+            rows.append(row)
             completed.add(ranks)
 
     print("\n=== PHASE B: rank sweep ===")
@@ -298,10 +370,71 @@ def run(args: argparse.Namespace) -> None:
         ]
     else:
         rank_grid = build_rank_grid(n_heads, d_model, args.r1_fixed)
-    for tag, ranks in rank_grid:
-        if ranks not in completed:
-            rows.append(train_config(tag, ranks))
-            completed.add(ranks)
+    
+    if args.parallel and len(rank_grid) > 1:
+        configs_to_train = [
+            (tag, ranks)
+            for tag, ranks in rank_grid
+            if ranks not in completed
+        ]
+        if configs_to_train:
+            def train_config_wrapper(config):
+                tag, ranks = config
+                return _train_config_task(
+                    tag,
+                    ranks,
+                    seeds,
+                    args.num_classes,
+                    args.model_name,
+                    train_set,
+                    val_set,
+                    device,
+                    epochs,
+                    args.learning_rate,
+                    args.encoder_learning_rate,
+                    args.unfreeze_last,
+                    args.stage1_epochs,
+                    args.patience,
+                    args.batch_size,
+                    args.num_workers,
+                    n_heads,
+                    d_model,
+                    mha_attention_params,
+                )
+            
+            num_workers = args.parallel_workers or max(1, torch.cuda.device_count() or 1)
+            print(f"[parallel] training {len(configs_to_train)} configs with {num_workers} worker(s)")
+            with Pool(processes=num_workers) as pool:
+                results = pool.map(train_config_wrapper, configs_to_train)
+            rows.extend(results)
+            for tag, ranks in configs_to_train:
+                completed.add(ranks)
+    else:
+        for tag, ranks in rank_grid:
+            if ranks not in completed:
+                row = _train_config_task(
+                    tag,
+                    ranks,
+                    seeds,
+                    args.num_classes,
+                    args.model_name,
+                    train_set,
+                    val_set,
+                    device,
+                    epochs,
+                    args.learning_rate,
+                    args.encoder_learning_rate,
+                    args.unfreeze_last,
+                    args.stage1_epochs,
+                    args.patience,
+                    args.batch_size,
+                    args.num_workers,
+                    n_heads,
+                    d_model,
+                    mha_attention_params,
+                )
+                rows.append(row)
+                completed.add(ranks)
 
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -400,6 +533,17 @@ def parse_args() -> argparse.Namespace:
         "--smoke",
         action="store_true",
         help="run one epoch, one seed, and a tiny baseline/reference/rank pipeline",
+    )
+    parser.add_argument(
+        "--parallel",
+        action="store_true",
+        help="parallelize rank configurations (much faster)",
+    )
+    parser.add_argument(
+        "--parallel-workers",
+        type=int,
+        default=None,
+        help="number of parallel workers (default: GPU count or auto)",
     )
     return parser.parse_args()
 
