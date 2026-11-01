@@ -15,7 +15,7 @@ class ViT_Tucker_Seg(nn.Module):
     def __init__(
         self,
         num_classes: int = 5,
-        ranks: Tuple[int, int, int] = (4, 64, 64),
+        ranks: Tuple[int, int, int] = (4, 16, 16),
         model_name: str = "facebook/dinov2-large",
         use_tucker: bool = False,
     ) -> None:

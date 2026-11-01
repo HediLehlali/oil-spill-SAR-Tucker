@@ -1,0 +1,4 @@
+Run,Best Epoch,F1,Oil-Spill IoU,Accuracy,Precision,Recall,Loss
+Baseline,17,0.8841,0.7922,0.9365,0.8737,0.8947,0.3579
+Tucker (frozen),14,0.8727,0.7742,0.9270,0.8257,0.9255,0.4116
+Tucker (unfrozen),17,0.8803,0.7861,0.9342,0.8668,0.8942,0.3867

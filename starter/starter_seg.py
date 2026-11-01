@@ -35,8 +35,8 @@ def parse_args() -> argparse.Namespace:
         help="custom Hugging Face model ID or local model directory; overrides --model",
     )
     parser.add_argument("--num-classes", type=int, default=2)
-    parser.add_argument("--image-width", type=int, default=256)
-    parser.add_argument("--image-height", type=int, default=256)
+    parser.add_argument("--image-width", type=int, default=224)
+    parser.add_argument("--image-height", type=int, default=224)
     parser.add_argument("--batch-size", type=int, default=2)
     parser.add_argument("--epochs", type=int, default=80)
     parser.add_argument("--stage1-epochs", type=int, default=10)
@@ -107,7 +107,15 @@ def main() -> None:
 
     print("Best validation metrics:")
     for name, value in best_metrics.items():
-        print(f"  {name}: {value:.4f}")
+        if name == "confusion_matrix":
+            print("  confusion_matrix (rows=true, cols=pred):")
+            for line in value:
+                print(f"    {line}")
+        elif name == "profile":
+            for key, item in value.items():
+                print(f"  profile.{key}: {item:.4f}")
+        else:
+            print(f"  {name}: {value:.4f}")
 
 
 if __name__ == "__main__":

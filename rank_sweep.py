@@ -20,6 +20,7 @@ import csv
 import random
 import statistics
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -262,21 +263,55 @@ def run(args: argparse.Namespace) -> None:
             "mean_iou_no_background",
             "precision",
             "recall",
+            "f1",
         ):
             mean, std = _mean_std([result[metric_name] for result in per_seed])
             row[f"{metric_name}_mean"] = mean
             row[f"{metric_name}_std"] = std
 
+        confusion = np.mean(
+            [np.array(result["confusion_matrix"]) for result in per_seed], axis=0
+        )
+        for i in range(confusion.shape[0]):
+            for j in range(confusion.shape[1]):
+                row[f"cm_true{i}_pred{j}"] = float(confusion[i, j])
+        print(f"[{tag}] confusion matrix (rows=true, cols=pred, mean over seeds):")
+        print(np.array2string(confusion, precision=0, suppress_small=True))
+
+        profiles = [result["profile"] for result in per_seed]
+        for key in (
+            "total_time_s",
+            "train_time_s",
+            "data_wait_time_s",
+            "eval_time_s",
+            "inference_time_s",
+        ):
+            row[f"profile_{key}"] = sum(p[key] for p in profiles)
+        for key in ("inference_ms_per_image", "gpu_util_mean_pct", "epochs_run"):
+            row[f"profile_{key}"] = statistics.mean(p[key] for p in profiles)
+        row["profile_gpu_peak_mem_mb"] = max(p["gpu_peak_mem_mb"] for p in profiles)
+
         print(
             f"[{tag}] ranks={ranks or 'MHA'} params={attention_params:,} "
             f"reduction={row['attention_reduction_pct']:.1f}% "
             f"accuracy={row['accuracy_mean']:.4f} "
+            f"f1={row['f1_mean']:.4f} "
             f"oil_iou={row['oil_spill_iou_mean']:.4f} "
             f"mean_iou_no_bg={row['mean_iou_no_background_mean']:.4f}"
+        )
+        print(
+            f"[{tag}] profile: total={row['profile_total_time_s']:.0f}s "
+            f"train={row['profile_train_time_s']:.0f}s "
+            f"data_wait={row['profile_data_wait_time_s']:.0f}s "
+            f"inference={row['profile_inference_time_s']:.0f}s "
+            f"({row['profile_inference_ms_per_image']:.1f} ms/img) "
+            f"gpu_util={row['profile_gpu_util_mean_pct']:.0f}% "
+            f"peak_mem={row['profile_gpu_peak_mem_mb']:.0f}MB"
         )
         return row
 
     rows: list[dict[str, Any]] = []
+    sweep_start = time.perf_counter()
 
     print("\n=== PHASE A: baseline and reference ranks ===")
     baseline = train_config("MHA", None)
@@ -311,6 +346,27 @@ def run(args: argparse.Namespace) -> None:
         writer.writeheader()
         writer.writerows(rows)
     print(f"\n[wrote] {out}")
+
+    total_wall = time.perf_counter() - sweep_start
+    profile_path = out.with_name(f"{out.stem}_profile.txt")
+    with profile_path.open("w", encoding="utf-8") as profile_file:
+        profile_file.write(
+            f"device={device} total_wall_time_s={total_wall:.0f} "
+            f"({total_wall / 3600:.2f} h)\n"
+        )
+        for row in rows:
+            profile_file.write(
+                f"{row['tag']}: total={row['profile_total_time_s']:.0f}s "
+                f"train={row['profile_train_time_s']:.0f}s "
+                f"data_wait={row['profile_data_wait_time_s']:.0f}s "
+                f"eval={row['profile_eval_time_s']:.0f}s "
+                f"inference={row['profile_inference_time_s']:.0f}s "
+                f"({row['profile_inference_ms_per_image']:.1f} ms/img) "
+                f"epochs={row['profile_epochs_run']:.1f} "
+                f"gpu_util={row['profile_gpu_util_mean_pct']:.0f}% "
+                f"peak_mem={row['profile_gpu_peak_mem_mb']:.0f}MB\n"
+            )
+    print(f"[wrote] {profile_path} (total wall time {total_wall / 3600:.2f} h)")
 
     print("\n=== COMPRESSION REPORT ===")
     print(

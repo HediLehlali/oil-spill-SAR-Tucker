@@ -1,12 +1,19 @@
 from __future__ import annotations
 
+import time
 from pathlib import Path
+from typing import Any
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+
+
+def _sync(device: torch.device) -> None:
+    if device.type == "cuda":
+        torch.cuda.synchronize(device)
 
 
 def dice_loss(logits: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
@@ -43,16 +50,24 @@ def evaluate_seg(
     data_loader: DataLoader,
     num_classes: int,
     device: torch.device | str,
-) -> dict[str, float]:
+) -> dict[str, Any]:
     device = torch.device(device)
     model.eval()
     confusion = torch.zeros(
         (num_classes, num_classes), dtype=torch.int64, device=device
     )
+    inference_time = 0.0
+    num_images = 0
+    eval_start = time.perf_counter()
     for images, masks in data_loader:
         images = images.to(device, non_blocking=True)
         masks = masks.to(device, non_blocking=True)
+        _sync(device)
+        forward_start = time.perf_counter()
         logits = model(images)
+        _sync(device)
+        inference_time += time.perf_counter() - forward_start
+        num_images += images.shape[0]
         predictions = logits.argmax(dim=1)
         confusion += torch.bincount(
             masks.reshape(-1) * num_classes + predictions.reshape(-1),
@@ -69,7 +84,16 @@ def evaluate_seg(
     present = union > 0
     non_background = present.clone()
     non_background[0] = False
-    result = {
+    f1 = 2.0 * true_positive / (
+        confusion.sum(dim=0) + confusion.sum(dim=1)
+    ).clamp_min(1).float()
+    result: dict[str, Any] = {
+        "f1": f1[1].item(),
+        "mean_f1": f1[present].mean().item() if present.any() else 0.0,
+        "confusion_matrix": confusion.tolist(),
+        "inference_time_s": inference_time,
+        "eval_time_s": time.perf_counter() - eval_start,
+        "num_images": num_images,
         "accuracy": (
             true_positive.sum() / total_pixels.clamp_min(1)
         ).item(),
@@ -152,10 +176,13 @@ def train_seg(
     stage1_epochs: int = 10,
     patience: int = 12,
     checkpoint_path: str | Path = "checkpoints/sar_vit_best.pt",
-) -> dict[str, float]:
+) -> dict[str, Any]:
+    run_start = time.perf_counter()
     device = torch.device(device)
     model.to(device)
     _set_trainable_parameters(model, 0)
+    if device.type == "cuda":
+        torch.cuda.reset_peak_memory_stats(device)
 
     class_weights = _class_weights(train_loader, num_classes, device)
     criterion = nn.CrossEntropyLoss(weight=class_weights)
@@ -164,9 +191,15 @@ def train_seg(
     checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
 
     best_oil_iou = -1.0
-    best_metrics: dict[str, float] = {}
+    best_metrics: dict[str, Any] = {}
     epochs_without_improvement = 0
     optimizer: torch.optim.Optimizer | None = None
+    setup_time = time.perf_counter() - run_start
+    train_time = data_wait_time = eval_time = inference_time = 0.0
+    eval_images = 0
+    epochs_run = 0
+    gpu_samples: list[float] = []
+    sample_gpu = device.type == "cuda"
 
     for epoch in range(epochs):
         fine_tuning = unfreeze_last > 0 and epoch >= stage1_epochs
@@ -182,9 +215,12 @@ def train_seg(
 
         model.train()
         total_loss = 0.0
-        for images, masks in tqdm(
-            train_loader, desc=f"Epoch {epoch + 1}/{epochs}", leave=False
+        epoch_start = time.perf_counter()
+        wait_start = epoch_start
+        for step, (images, masks) in enumerate(
+            tqdm(train_loader, desc=f"Epoch {epoch + 1}/{epochs}", leave=False)
         ):
+            data_wait_time += time.perf_counter() - wait_start
             images = images.to(device, non_blocking=True)
             masks = masks.to(device, non_blocking=True)
             optimizer.zero_grad(set_to_none=True)
@@ -197,8 +233,19 @@ def train_seg(
             scaler.step(optimizer)
             scaler.update()
             total_loss += loss.item()
+            if sample_gpu and step % 50 == 0:
+                try:
+                    gpu_samples.append(float(torch.cuda.utilization(device)))
+                except Exception:
+                    sample_gpu = False
+            wait_start = time.perf_counter()
+        train_time += time.perf_counter() - epoch_start
 
         metrics = evaluate_seg(model, val_loader, num_classes, device)
+        eval_time += metrics["eval_time_s"]
+        inference_time += metrics["inference_time_s"]
+        eval_images += metrics["num_images"]
+        epochs_run += 1
         average_loss = total_loss / max(len(train_loader), 1)
         stage = "fine-tuning" if fine_tuning else "decoder"
         print(
@@ -207,6 +254,7 @@ def train_seg(
             f"accuracy={metrics['accuracy']:.4f} "
             f"precision={metrics['precision']:.4f} "
             f"recall={metrics['recall']:.4f} "
+            f"f1={metrics['f1']:.4f} "
             f"oil_spill_iou={metrics['oil_spill_iou']:.4f} "
             f"mean_iou_no_background={metrics['mean_iou_no_background']:.4f}"
         )
@@ -225,4 +273,25 @@ def train_seg(
     if not checkpoint_path.is_file():
         raise RuntimeError("Training finished without producing a best checkpoint")
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
+    _sync(device)
+    best_metrics["profile"] = {
+        "total_time_s": time.perf_counter() - run_start,
+        "setup_time_s": setup_time,
+        "train_time_s": train_time,
+        "data_wait_time_s": data_wait_time,
+        "eval_time_s": eval_time,
+        "inference_time_s": inference_time,
+        "inference_ms_per_image": (
+            1000.0 * inference_time / eval_images if eval_images else 0.0
+        ),
+        "epochs_run": epochs_run,
+        "gpu_util_mean_pct": (
+            sum(gpu_samples) / len(gpu_samples) if gpu_samples else float("nan")
+        ),
+        "gpu_peak_mem_mb": (
+            torch.cuda.max_memory_allocated(device) / 2**20
+            if device.type == "cuda"
+            else 0.0
+        ),
+    }
     return best_metrics
