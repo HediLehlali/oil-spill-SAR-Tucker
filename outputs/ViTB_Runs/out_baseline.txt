@@ -1,0 +1,49 @@
+Device: cuda; samples: 6455 train, 1615 validation
+ViT encoder: google/vit-base-patch16-224-in21k
+Epoch 1/20 [decoder] loss=0.4994 accuracy=0.9145 precision=0.7991 recall=0.9136 f1=0.8525 oil_spill_iou=0.7430 mean_iou_no_background=0.7430
+Epoch 2/20 [decoder] loss=0.4226 accuracy=0.9049 precision=0.7587 recall=0.9508 f1=0.8439 oil_spill_iou=0.7300 mean_iou_no_background=0.7300
+Epoch 3/20 [decoder] loss=0.3997 accuracy=0.9341 precision=0.8986 recall=0.8526 f1=0.8750 oil_spill_iou=0.7778 mean_iou_no_background=0.7778
+Epoch 4/20 [decoder] loss=0.3954 accuracy=0.9262 precision=0.8218 recall=0.9284 f1=0.8719 oil_spill_iou=0.7728 mean_iou_no_background=0.7728
+Epoch 5/20 [decoder] loss=0.3810 accuracy=0.9329 precision=0.8472 recall=0.9175 f1=0.8809 oil_spill_iou=0.7872 mean_iou_no_background=0.7872
+Epoch 6/20 [decoder] loss=0.3741 accuracy=0.9376 precision=0.8680 recall=0.9075 f1=0.8873 oil_spill_iou=0.7974 mean_iou_no_background=0.7974
+Epoch 7/20 [decoder] loss=0.3793 accuracy=0.9182 precision=0.7869 recall=0.9567 f1=0.8635 oil_spill_iou=0.7598 mean_iou_no_background=0.7598
+Epoch 8/20 [decoder] loss=0.3702 accuracy=0.9320 precision=0.8381 recall=0.9278 f1=0.8807 oil_spill_iou=0.7868 mean_iou_no_background=0.7868
+Epoch 9/20 [decoder] loss=0.3702 accuracy=0.9252 precision=0.8106 recall=0.9442 f1=0.8723 oil_spill_iou=0.7736 mean_iou_no_background=0.7736
+Epoch 10/20 [decoder] loss=0.3665 accuracy=0.9366 precision=0.8563 recall=0.9199 f1=0.8869 oil_spill_iou=0.7968 mean_iou_no_background=0.7968
+Epoch 11/20 [decoder] loss=0.3605 accuracy=0.9346 precision=0.8553 recall=0.9128 f1=0.8831 oil_spill_iou=0.7907 mean_iou_no_background=0.7907
+Epoch 12/20 [decoder] loss=0.3617 accuracy=0.9371 precision=0.8787 recall=0.8902 f1=0.8844 oil_spill_iou=0.7928 mean_iou_no_background=0.7928
+Epoch 13/20 [decoder] loss=0.3575 accuracy=0.9328 precision=0.8443 recall=0.9216 f1=0.8812 oil_spill_iou=0.7877 mean_iou_no_background=0.7877
+Epoch 14/20 [decoder] loss=0.3578 accuracy=0.9376 precision=0.8659 recall=0.9101 f1=0.8875 oil_spill_iou=0.7977 mean_iou_no_background=0.7977
+Epoch 15/20 [decoder] loss=0.3548 accuracy=0.9323 precision=0.8398 recall=0.9263 f1=0.8809 oil_spill_iou=0.7872 mean_iou_no_background=0.7872
+Epoch 16/20 [decoder] loss=0.3531 accuracy=0.9281 precision=0.8280 recall=0.9268 f1=0.8746 oil_spill_iou=0.7772 mean_iou_no_background=0.7772
+Epoch 17/20 [decoder] loss=0.3548 accuracy=0.9303 precision=0.8269 recall=0.9391 f1=0.8794 oil_spill_iou=0.7848 mean_iou_no_background=0.7848
+Epoch 18/20 [decoder] loss=0.3478 accuracy=0.9282 precision=0.8180 recall=0.9446 f1=0.8768 oil_spill_iou=0.7806 mean_iou_no_background=0.7806
+Epoch 19/20 [decoder] loss=0.3495 accuracy=0.9292 precision=0.8297 recall=0.9286 f1=0.8764 oil_spill_iou=0.7800 mean_iou_no_background=0.7800
+Epoch 20/20 [decoder] loss=0.3460 accuracy=0.9364 precision=0.8682 recall=0.9016 f1=0.8846 oil_spill_iou=0.7931 mean_iou_no_background=0.7931
+Best validation metrics:
+  f1: 0.8875
+  mean_f1: 0.9221
+  confusion_matrix (rows=true, cols=pred):
+    [56026815, 3088646]
+    [1969837, 19948942]
+  inference_time_s: 9.7777
+  eval_time_s: 14.8424
+  num_images: 1615.0000
+  accuracy: 0.9376
+  precision: 0.8659
+  recall: 0.9101
+  class_0_iou: 0.9172
+  class_1_iou: 0.7977
+  oil_spill_iou: 0.7977
+  mean_iou: 0.8575
+  mean_iou_no_background: 0.7977
+  profile.total_time_s: 914.2435
+  profile.setup_time_s: 39.5735
+  profile.train_time_s: 576.3370
+  profile.data_wait_time_s: 108.3825
+  profile.eval_time_s: 296.4240
+  profile.inference_time_s: 194.5111
+  profile.inference_ms_per_image: 6.0220
+  profile.epochs_run: 20.0000
+  profile.gpu_util_mean_pct: 87.9353
+  profile.gpu_peak_mem_mb: 688.4727

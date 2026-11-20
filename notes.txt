@@ -1,16 +1,5 @@
-Model	   d_model	Heads	Layers	Head dim	Params	Patch
-ViT-S/14	384	      6	      12	  64	     21M	 14
-ViT-B/14	768	      12	  12	  64	     86M	 14
+La perte de précision ne suit pas la taille : −1.4, −0.6 puis −1.8 pt. Elle est du même ordre que le bruit, donc je ne conclurais pas à une tendance.
 
-ViT-L/14	1024	  16	  24	  64	     300M	 14
+Le gain en vitesse et en mémoire augmente nettement avec la taille. L'attention pèse peu dans un petit modèle. Sur ViT-S, Tucker ne donne ni accélération ni économie notable.
 
-ViT-g/14	1536	  24	  40	  64	     1.1B	 14
-
-
-### GPU Profiling with inference time - TODO
-### Confusion Matrix, F1-Score to implement - TODO
-Create dashboards with the results outputs - TODO
-### Rank sweeps - DONE
-Full framework adjustable to any usecase - TODO
-Build a database of examples where Tucker Attention can be applied - TODO
-API - TODO
+Tucker est donc surtout utile sur les gros encodeurs. Or ce sont justement ceux qui n'apportent rien en précision

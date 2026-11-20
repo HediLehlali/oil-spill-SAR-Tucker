@@ -1,0 +1,5 @@
+2026-11-15T12:56:00 finished segformer_b2 (exit 0)
+2026-11-15T13:54:19 finished upernet_swin_t (exit 0)
+2026-11-15T14:44:22 finished swin_unetr (exit 0)
+2026-11-15T15:38:51 finished transunet (exit 0)
+2026-11-15T17:40:49 finished mask2former_swin_t (exit 0)

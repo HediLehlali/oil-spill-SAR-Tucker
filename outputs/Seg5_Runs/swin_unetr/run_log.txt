@@ -1,0 +1,29 @@
+[13:54:23] === swin_unetr: epochs=10 batch=8 size=224 ===
+[13:57:31] baseline ep 1/10 loss=0.5406 f1=0.8515 iou=0.7413 acc=0.9135 P=0.7949 R=0.9166 (141s train, 24s eval)
+[13:59:50] baseline ep 2/10 loss=0.4171 f1=0.8732 iou=0.7749 acc=0.9295 P=0.8500 R=0.8976 (127s train, 11s eval)
+[14:02:09] baseline ep 3/10 loss=0.3948 f1=0.8733 iou=0.7751 acc=0.9285 P=0.8388 R=0.9107 (128s train, 11s eval)
+[14:04:29] baseline ep 4/10 loss=0.3825 f1=0.8719 iou=0.7729 acc=0.9270 P=0.8293 R=0.9191 (128s train, 11s eval)
+[14:06:48] baseline ep 5/10 loss=0.3747 f1=0.8844 iou=0.7928 acc=0.9360 P=0.8644 R=0.9054 (128s train, 11s eval)
+[14:09:08] baseline ep 6/10 loss=0.3669 f1=0.8843 iou=0.7926 acc=0.9342 P=0.8427 R=0.9302 (128s train, 11s eval)
+[14:11:27] baseline ep 7/10 loss=0.3584 f1=0.8899 iou=0.8016 acc=0.9384 P=0.8619 R=0.9198 (128s train, 11s eval)
+[14:13:46] baseline ep 8/10 loss=0.3466 f1=0.8876 iou=0.7979 acc=0.9363 P=0.8497 R=0.9290 (128s train, 11s eval)
+[14:16:06] baseline ep 9/10 loss=0.3412 f1=0.8914 iou=0.8041 acc=0.9392 P=0.8621 R=0.9227 (128s train, 11s eval)
+[14:18:25] baseline ep 10/10 loss=0.3384 f1=0.8902 iou=0.8021 acc=0.9381 P=0.8558 R=0.9275 (128s train, 11s eval)
+[14:18:39] baseline best IoU=0.8041
+[14:18:53] frozen L1_h1/3_d1/4: attn 30.9x smaller, IoU=0.4792 F1=0.6479
+[14:19:07] frozen L2_h1/2_d1/2: attn 19.8x smaller, IoU=0.6984 F1=0.8224
+[14:19:22] frozen L3_h1_d1: attn 9.4x smaller, IoU=0.7952 F1=0.8859
+[14:19:36] frozen L4_h1_d2: attn 4.0x smaller, IoU=0.8039 F1=0.8913
+[14:19:36] headline Tucker level: L3_h1_d1 (9.4x)
+[14:22:04] tucker_unfrozen ep 1/10 loss=0.3417 f1=0.8882 iou=0.7988 acc=0.9364 P=0.8463 R=0.9345 (135s train, 12s eval)
+[14:24:30] tucker_unfrozen ep 2/10 loss=0.3384 f1=0.8856 iou=0.7947 acc=0.9343 P=0.8372 R=0.9400 (134s train, 12s eval)
+[14:26:57] tucker_unfrozen ep 3/10 loss=0.3367 f1=0.8857 iou=0.7948 acc=0.9345 P=0.8385 R=0.9385 (134s train, 12s eval)
+[14:29:24] tucker_unfrozen ep 4/10 loss=0.3366 f1=0.8907 iou=0.8029 acc=0.9383 P=0.8546 R=0.9300 (134s train, 12s eval)
+[14:31:51] tucker_unfrozen ep 5/10 loss=0.3346 f1=0.8856 iou=0.7947 acc=0.9342 P=0.8355 R=0.9422 (135s train, 12s eval)
+[14:34:18] tucker_unfrozen ep 6/10 loss=0.3324 f1=0.8918 iou=0.8048 acc=0.9391 P=0.8584 R=0.9279 (134s train, 12s eval)
+[14:36:45] tucker_unfrozen ep 7/10 loss=0.3293 f1=0.8890 iou=0.8001 acc=0.9367 P=0.8462 R=0.9362 (134s train, 12s eval)
+[14:39:11] tucker_unfrozen ep 8/10 loss=0.3294 f1=0.8917 iou=0.8045 acc=0.9389 P=0.8563 R=0.9300 (134s train, 12s eval)
+[14:41:38] tucker_unfrozen ep 9/10 loss=0.3270 f1=0.8891 iou=0.8004 acc=0.9369 P=0.8470 R=0.9357 (134s train, 12s eval)
+[14:44:05] tucker_unfrozen ep 10/10 loss=0.3250 f1=0.8904 iou=0.8025 acc=0.9379 P=0.8517 R=0.9329 (134s train, 12s eval)
+[14:44:19] unfrozen best IoU=0.8048
+[14:44:20] done

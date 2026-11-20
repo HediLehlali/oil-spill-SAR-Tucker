@@ -1,0 +1,422 @@
+{
+ "model": {
+  "key": "segformer_b2",
+  "pretty": "SegFormer-B2",
+  "hf_id": "nvidia/segformer-b2-finetuned-ade-512-512",
+  "total_params_m": 27.348162
+ },
+ "baseline": {
+  "train_time_s": 1075.1160588999992,
+  "train_peak_mem_mb": 1762.939453125,
+  "best_path": "C:\\Users\\hedil\\Desktop\\ELAB4SPACE\\Oil Spills\\checkpoints\\seg5\\segformer_b2\\baseline_best.pt",
+  "best_iou": 0.8055897355079651,
+  "epochs": 10,
+  "metrics": {
+   "f1": 0.892328679561615,
+   "mean_f1": 0.9251481890678406,
+   "confusion_matrix": [
+    [
+     55832508,
+     3282953
+    ],
+    [
+     1616521,
+     20302258
+    ]
+   ],
+   "inference_time_s": 9.03258379999761,
+   "eval_time_s": 9.498908200000187,
+   "num_images": 1615,
+   "accuracy": 0.9395382404327393,
+   "precision": 0.860804557800293,
+   "recall": 0.9262494444847107,
+   "class_0_iou": 0.9193263053894043,
+   "class_1_iou": 0.8055897355079651,
+   "oil_spill_iou": 0.8055897355079651,
+   "mean_iou": 0.8624579906463623,
+   "mean_iou_no_background": 0.8055897355079651
+  },
+  "profile": {
+   "params_m": 27.348162,
+   "gflops": 21.94597888,
+   "ms_per_img_bf16": 3.201425000003155,
+   "infer_peak_mem_mb_bf16": 1284.09033203125,
+   "ms_per_img_fp32": 3.9301687500028493,
+   "infer_peak_mem_mb_fp32": 1121.640625
+  }
+ },
+ "sweep": {
+  "L1_h1/3_d1/4": {
+   "metrics": {
+    "f1": 0.8144710659980774,
+    "mean_f1": 0.8644047975540161,
+    "confusion_matrix": [
+     [
+      50688920,
+      8426541
+     ],
+     [
+      1071219,
+      20847560
+     ]
+    ],
+    "inference_time_s": 10.118112600002405,
+    "eval_time_s": 10.566367999999784,
+    "num_images": 1615,
+    "accuracy": 0.8827932476997375,
+    "precision": 0.7121503353118896,
+    "recall": 0.9511277675628662,
+    "class_0_iou": 0.8421949744224548,
+    "class_1_iou": 0.6870107054710388,
+    "oil_spill_iou": 0.6870107054710388,
+    "mean_iou": 0.7646028399467468,
+    "mean_iou_no_background": 0.6870107054710388
+   },
+   "profile": {
+    "params_m": 21.725024,
+    "gflops": 20.578623616,
+    "ms_per_img_bf16": 3.753276250000681,
+    "infer_peak_mem_mb_bf16": 1255.13525390625,
+    "ms_per_img_fp32": 4.032506250001688,
+    "infer_peak_mem_mb_fp32": 1101.36474609375
+   },
+   "compress_time_s": 0.9145791999999346,
+   "dense_attn_params": 5931264,
+   "tucker_attn_params": 308126,
+   "compression": 19.249475863770016,
+   "n_layers": 16,
+   "example_ranks": [
+    [
+     "net.segformer.encoder.block.0.0.attention",
+     [
+      1,
+      16,
+      16
+     ]
+    ],
+    [
+     "net.segformer.encoder.block.0.1.attention",
+     [
+      1,
+      16,
+      16
+     ]
+    ],
+    [
+     "net.segformer.encoder.block.0.2.attention",
+     [
+      1,
+      16,
+      16
+     ]
+    ]
+   ]
+  },
+  "L2_h1/2_d1/2": {
+   "metrics": {
+    "f1": 0.8736655116081238,
+    "mean_f1": 0.9111860990524292,
+    "confusion_matrix": [
+     [
+      54677876,
+      4437585
+     ],
+     [
+      1474898,
+      20443881
+     ]
+    ],
+    "inference_time_s": 10.173457800003234,
+    "eval_time_s": 10.634451099999751,
+    "num_images": 1615,
+    "accuracy": 0.927037239074707,
+    "precision": 0.8216509222984314,
+    "recall": 0.9327106475830078,
+    "class_0_iou": 0.9024187922477722,
+    "class_1_iou": 0.7756714820861816,
+    "oil_spill_iou": 0.7756714820861816,
+    "mean_iou": 0.8390451669692993,
+    "mean_iou_no_background": 0.7756714820861816
+   },
+   "profile": {
+    "params_m": 22.052812,
+    "gflops": 20.826567808,
+    "ms_per_img_bf16": 3.80803374999914,
+    "infer_peak_mem_mb_bf16": 1256.40673828125,
+    "ms_per_img_fp32": 4.0470475000006445,
+    "infer_peak_mem_mb_fp32": 1102.61474609375
+   },
+   "compress_time_s": 0.054173099999843544,
+   "dense_attn_params": 5931264,
+   "tucker_attn_params": 635914,
+   "compression": 9.327148010580046,
+   "n_layers": 16,
+   "example_ranks": [
+    [
+     "net.segformer.encoder.block.0.0.attention",
+     [
+      1,
+      32,
+      32
+     ]
+    ],
+    [
+     "net.segformer.encoder.block.0.1.attention",
+     [
+      1,
+      32,
+      32
+     ]
+    ],
+    [
+     "net.segformer.encoder.block.0.2.attention",
+     [
+      1,
+      32,
+      32
+     ]
+    ]
+   ]
+  },
+  "L3_h1_d1": {
+   "metrics": {
+    "f1": 0.891185998916626,
+    "mean_f1": 0.9241617321968079,
+    "confusion_matrix": [
+     [
+      55642836,
+      3472625
+     ],
+     [
+      1510970,
+      20407809
+     ]
+    ],
+    "inference_time_s": 10.173872800002755,
+    "eval_time_s": 10.622947100000147,
+    "num_images": 1615,
+    "accuracy": 0.9385000467300415,
+    "precision": 0.8545827865600586,
+    "recall": 0.9310649633407593,
+    "class_0_iou": 0.9177983403205872,
+    "class_1_iou": 0.8037289977073669,
+    "oil_spill_iou": 0.8037289977073669,
+    "mean_iou": 0.860763669013977,
+    "mean_iou_no_background": 0.8037289977073669
+   },
+   "profile": {
+    "params_m": 23.042324,
+    "gflops": 21.465996416,
+    "ms_per_img_bf16": 3.790196250002964,
+    "infer_peak_mem_mb_bf16": 1262.66455078125,
+    "ms_per_img_fp32": 4.084711249998918,
+    "infer_peak_mem_mb_fp32": 1107.14599609375
+   },
+   "compress_time_s": 0.06467979999979434,
+   "dense_attn_params": 5931264,
+   "tucker_attn_params": 1625426,
+   "compression": 3.6490520023673794,
+   "n_layers": 16,
+   "example_ranks": [
+    [
+     "net.segformer.encoder.block.0.0.attention",
+     [
+      1,
+      64,
+      64
+     ]
+    ],
+    [
+     "net.segformer.encoder.block.0.1.attention",
+     [
+      1,
+      64,
+      64
+     ]
+    ],
+    [
+     "net.segformer.encoder.block.0.2.attention",
+     [
+      1,
+      64,
+      64
+     ]
+    ]
+   ]
+  },
+  "L4_h1_d2": {
+   "metrics": {
+    "f1": 0.8924488425254822,
+    "mean_f1": 0.9252492785453796,
+    "confusion_matrix": [
+     [
+      55850418,
+      3265043
+     ],
+     [
+      1626020,
+      20292759
+     ]
+    ],
+    "inference_time_s": 10.188612200000534,
+    "eval_time_s": 10.654670000000351,
+    "num_images": 1615,
+    "accuracy": 0.9396420121192932,
+    "precision": 0.8614029288291931,
+    "recall": 0.9258161187171936,
+    "class_0_iou": 0.9194773435592651,
+    "class_1_iou": 0.805785596370697,
+    "oil_spill_iou": 0.805785596370697,
+    "mean_iou": 0.8626314401626587,
+    "mean_iou_no_background": 0.805785596370697
+   },
+   "profile": {
+    "params_m": 25.581844,
+    "gflops": 22.574017664,
+    "ms_per_img_bf16": 3.805132499996944,
+    "infer_peak_mem_mb_bf16": 1275.77392578125,
+    "ms_per_img_fp32": 4.222243750001553,
+    "infer_peak_mem_mb_fp32": 1116.07568359375
+   },
+   "compress_time_s": 0.06338989999994737,
+   "dense_attn_params": 5931264,
+   "tucker_attn_params": 4164946,
+   "compression": 1.4240914528063509,
+   "n_layers": 16,
+   "example_ranks": [
+    [
+     "net.segformer.encoder.block.0.0.attention",
+     [
+      1,
+      64,
+      64
+     ]
+    ],
+    [
+     "net.segformer.encoder.block.0.1.attention",
+     [
+      1,
+      64,
+      64
+     ]
+    ],
+    [
+     "net.segformer.encoder.block.0.2.attention",
+     [
+      1,
+      64,
+      64
+     ]
+    ]
+   ]
+  }
+ },
+ "headline_level": "L3_h1_d1",
+ "tucker_frozen": {
+  "metrics": {
+   "f1": 0.891185998916626,
+   "mean_f1": 0.9241617321968079,
+   "confusion_matrix": [
+    [
+     55642836,
+     3472625
+    ],
+    [
+     1510970,
+     20407809
+    ]
+   ],
+   "inference_time_s": 10.173872800002755,
+   "eval_time_s": 10.622947100000147,
+   "num_images": 1615,
+   "accuracy": 0.9385000467300415,
+   "precision": 0.8545827865600586,
+   "recall": 0.9310649633407593,
+   "class_0_iou": 0.9177983403205872,
+   "class_1_iou": 0.8037289977073669,
+   "oil_spill_iou": 0.8037289977073669,
+   "mean_iou": 0.860763669013977,
+   "mean_iou_no_background": 0.8037289977073669
+  },
+  "profile": {
+   "params_m": 23.042324,
+   "gflops": 21.465996416,
+   "ms_per_img_bf16": 3.790196250002964,
+   "infer_peak_mem_mb_bf16": 1262.66455078125,
+   "ms_per_img_fp32": 4.084711249998918,
+   "infer_peak_mem_mb_fp32": 1107.14599609375
+  },
+  "compress_time_s": 0.06467979999979434,
+  "dense_attn_params": 5931264,
+  "tucker_attn_params": 1625426,
+  "compression": 3.6490520023673794,
+  "n_layers": 16,
+  "example_ranks": [
+   [
+    "net.segformer.encoder.block.0.0.attention",
+    [
+     1,
+     64,
+     64
+    ]
+   ],
+   [
+    "net.segformer.encoder.block.0.1.attention",
+    [
+     1,
+     64,
+     64
+    ]
+   ],
+   [
+    "net.segformer.encoder.block.0.2.attention",
+    [
+     1,
+     64,
+     64
+    ]
+   ]
+  ]
+ },
+ "tucker_unfrozen": {
+  "train_time_s": 1157.6201199000002,
+  "train_peak_mem_mb": 2055.43505859375,
+  "best_path": "C:\\Users\\hedil\\Desktop\\ELAB4SPACE\\Oil Spills\\checkpoints\\seg5\\segformer_b2\\tucker_unfrozen_best.pt",
+  "best_iou": 0.8050349950790405,
+  "epochs": 10,
+  "metrics": {
+   "f1": 0.891988217830658,
+   "mean_f1": 0.9251408576965332,
+   "confusion_matrix": [
+    [
+     56022611,
+     3092850
+    ],
+    [
+     1783543,
+     20135236
+    ]
+   ],
+   "inference_time_s": 11.14065810000011,
+   "eval_time_s": 11.628821399999651,
+   "num_images": 1615,
+   "accuracy": 0.9398230910301208,
+   "precision": 0.8668487071990967,
+   "recall": 0.9186294078826904,
+   "class_0_iou": 0.9199265837669373,
+   "class_1_iou": 0.8050349950790405,
+   "oil_spill_iou": 0.8050349950790405,
+   "mean_iou": 0.8624807596206665,
+   "mean_iou_no_background": 0.8050349950790405
+  },
+  "profile": {
+   "params_m": 23.042324,
+   "gflops": 21.465996416,
+   "ms_per_img_bf16": 4.021938749997389,
+   "infer_peak_mem_mb_bf16": 1529.59228515625,
+   "ms_per_img_fp32": 4.393709999999373,
+   "infer_peak_mem_mb_fp32": 1375.40185546875
+  },
+  "level": "L3_h1_d1"
+ }
+}

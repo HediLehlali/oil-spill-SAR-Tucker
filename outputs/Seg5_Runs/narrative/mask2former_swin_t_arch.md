@@ -1,0 +1,9 @@
+### Architecture and what is compressed
+
+**Pipeline.** Swin-T backbone → multi-scale **pixel decoder** (1/8, 1/16, 1/32 features, 6 multi-scale deformable-attention encoder layers, FPN-style upsampling to a ¼-resolution mask-feature map) → **masked-attention transformer decoder** with 100 learned queries (9 layers = 3 resolutions × 3 rounds, d=256, 8 heads). Each decoder layer is: masked cross-attention → self-attention → FFN (256-2048-256). Prediction heads: a class MLP (K+1 logits) and a mask-embedding MLP whose dot product with the mask features gives one binary mask per query. Semantic inference sums `softmax(class)·sigmoid(mask)` over queries. Training uses Hungarian matching with CE + mask BCE + Dice losses (we use the native loss; our class-weighted CE+Dice is not used here).
+
+**What Tucker touches.** 30 attention blocks (13.38M parameters, 28 % of the model): the 12 Swin window-attention blocks, the 9 decoder self-attentions and the 9 masked cross-attentions. In the cross-attention the query comes from the 100 queries (+ query positional embedding), keys from image features (+ sinusoidal position), values from image features without position; the Tucker block keeps exactly this input split and the additive attention mask. The 6 multi-scale deformable-attention layers of the pixel decoder are sampling-based (not Q·K^T over tokens) and are **not** compressed.
+
+**After the attention (not compressed).** Output projection (folded into the post-softmax Tucker tensor), residual + LayerNorm, the FFNs (Swin MLPs 17.3M + pixel-decoder FFNs + decoder FFN 256-2048-256 ≈ 29.9M, 63 % of the model), the mask/class heads.
+
+**FFN Tucker opportunity.** The nine decoder FFNs (256×2048) are identical in shape and are the best cross-layer Tucker candidates in the whole benchmark (9 layers × 1.05M parameters); the Swin FFNs behave as in Swin-T.

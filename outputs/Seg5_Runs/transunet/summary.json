@@ -1,0 +1,422 @@
+{
+ "model": {
+  "key": "transunet",
+  "pretty": "TransUNet (R50-ViT-B/16)",
+  "hf_id": "vit_base_r50_s16_224.orig_in21k",
+  "total_params_m": 105.276066
+ },
+ "baseline": {
+  "train_time_s": 1476.9212168999966,
+  "train_peak_mem_mb": 3224.927734375,
+  "best_path": "C:\\Users\\hedil\\Desktop\\ELAB4SPACE\\Oil Spills\\checkpoints\\seg5\\transunet\\baseline_best.pt",
+  "best_iou": 0.8084977269172668,
+  "epochs": 10,
+  "metrics": {
+   "f1": 0.8941097259521484,
+   "mean_f1": 0.9267380237579346,
+   "confusion_matrix": [
+    [
+     56182403,
+     2933058
+    ],
+    [
+     1826125,
+     20092654
+    ]
+   ],
+   "inference_time_s": 10.032227399990006,
+   "eval_time_s": 10.499523000000409,
+   "num_images": 1615,
+   "accuracy": 0.9412694573402405,
+   "precision": 0.8726181387901306,
+   "recall": 0.9166867136955261,
+   "class_0_iou": 0.9219058156013489,
+   "class_1_iou": 0.8084977269172668,
+   "oil_spill_iou": 0.8084977269172668,
+   "mean_iou": 0.8652017712593079,
+   "mean_iou_no_background": 0.8084977269172668
+  },
+  "profile": {
+   "params_m": 105.276066,
+   "gflops": 58.404864,
+   "ms_per_img_bf16": 5.6712837500072055,
+   "infer_peak_mem_mb_bf16": 2141.06494140625,
+   "ms_per_img_fp32": 8.085508749991277,
+   "infer_peak_mem_mb_fp32": 1893.96923828125
+  }
+ },
+ "sweep": {
+  "L1_h1/3_d1/4": {
+   "metrics": {
+    "f1": 0.8451412320137024,
+    "mean_f1": 0.89310622215271,
+    "confusion_matrix": [
+     [
+      55238844,
+      3876617
+     ],
+     [
+      3041360,
+      18877419
+     ]
+    ],
+    "inference_time_s": 10.684786599998915,
+    "eval_time_s": 11.135427000001073,
+    "num_images": 1615,
+    "accuracy": 0.9146289825439453,
+    "precision": 0.8296295404434204,
+    "recall": 0.8612440824508667,
+    "class_0_iou": 0.8887012600898743,
+    "class_1_iou": 0.7318135499954224,
+    "oil_spill_iou": 0.7318135499954224,
+    "mean_iou": 0.8102574348449707,
+    "mean_iou_no_background": 0.7318135499954224
+   },
+   "profile": {
+    "params_m": 77.66301,
+    "gflops": 46.54866432,
+    "ms_per_img_bf16": 5.746467499989194,
+    "infer_peak_mem_mb_bf16": 1970.94091796875,
+    "ms_per_img_fp32": 7.301465000000462,
+    "infer_peak_mem_mb_fp32": 1782.0810546875
+   },
+   "compress_time_s": 3.708167599999797,
+   "dense_attn_params": 28348416,
+   "tucker_attn_params": 735360,
+   "compression": 38.550391644908615,
+   "n_layers": 12,
+   "example_ranks": [
+    [
+     "blocks.0.attn",
+     [
+      4,
+      16,
+      16
+     ]
+    ],
+    [
+     "blocks.1.attn",
+     [
+      4,
+      16,
+      16
+     ]
+    ],
+    [
+     "blocks.2.attn",
+     [
+      4,
+      16,
+      16
+     ]
+    ]
+   ]
+  },
+  "L2_h1/2_d1/2": {
+   "metrics": {
+    "f1": 0.8693684339523315,
+    "mean_f1": 0.9099787473678589,
+    "confusion_matrix": [
+     [
+      55890049,
+      3225412
+     ],
+     [
+      2584835,
+      19333944
+     ]
+    ],
+    "inference_time_s": 11.217054700016888,
+    "eval_time_s": 11.691090700000132,
+    "num_images": 1615,
+    "accuracy": 0.928298830986023,
+    "precision": 0.8570255041122437,
+    "recall": 0.8820720911026001,
+    "class_0_iou": 0.9058310985565186,
+    "class_1_iou": 0.7689228653907776,
+    "oil_spill_iou": 0.7689228653907776,
+    "mean_iou": 0.8373769521713257,
+    "mean_iou_no_background": 0.7689228653907776
+   },
+   "profile": {
+    "params_m": 78.37629,
+    "gflops": 47.223570432,
+    "ms_per_img_bf16": 5.820300000004863,
+    "infer_peak_mem_mb_bf16": 1973.76904296875,
+    "ms_per_img_fp32": 7.317637500000274,
+    "infer_peak_mem_mb_fp32": 1784.7998046875
+   },
+   "compress_time_s": 0.08360200000061013,
+   "dense_attn_params": 28348416,
+   "tucker_attn_params": 1448640,
+   "compression": 19.568986083499006,
+   "n_layers": 12,
+   "example_ranks": [
+    [
+     "blocks.0.attn",
+     [
+      6,
+      32,
+      32
+     ]
+    ],
+    [
+     "blocks.1.attn",
+     [
+      6,
+      32,
+      32
+     ]
+    ],
+    [
+     "blocks.2.attn",
+     [
+      6,
+      32,
+      32
+     ]
+    ]
+   ]
+  },
+  "L3_h1_d1": {
+   "metrics": {
+    "f1": 0.8930688500404358,
+    "mean_f1": 0.9263453483581543,
+    "confusion_matrix": [
+     [
+      56447236,
+      2668225
+     ],
+     [
+      2082056,
+      19836723
+     ]
+    ],
+    "inference_time_s": 10.68144800000664,
+    "eval_time_s": 11.14128780000101,
+    "num_images": 1615,
+    "accuracy": 0.9413793683052063,
+    "precision": 0.8814383149147034,
+    "recall": 0.9050104022026062,
+    "class_0_iou": 0.92237788438797,
+    "class_1_iou": 0.8067971467971802,
+    "oil_spill_iou": 0.8067971467971802,
+    "mean_iou": 0.8645875453948975,
+    "mean_iou_no_background": 0.8067971467971802
+   },
+   "profile": {
+    "params_m": 80.589858,
+    "gflops": 48.76566528,
+    "ms_per_img_bf16": 5.970602499996858,
+    "infer_peak_mem_mb_bf16": 1985.62451171875,
+    "ms_per_img_fp32": 7.688472500012722,
+    "infer_peak_mem_mb_fp32": 1793.2490234375
+   },
+   "compress_time_s": 0.09593920000042999,
+   "dense_attn_params": 28348416,
+   "tucker_attn_params": 3662208,
+   "compression": 7.740798993394149,
+   "n_layers": 12,
+   "example_ranks": [
+    [
+     "blocks.0.attn",
+     [
+      12,
+      64,
+      64
+     ]
+    ],
+    [
+     "blocks.1.attn",
+     [
+      12,
+      64,
+      64
+     ]
+    ],
+    [
+     "blocks.2.attn",
+     [
+      12,
+      64,
+      64
+     ]
+    ]
+   ]
+  },
+  "L4_h1_d2": {
+   "metrics": {
+    "f1": 0.896765410900116,
+    "mean_f1": 0.9291534423828125,
+    "confusion_matrix": [
+     [
+      56769206,
+      2346255
+     ],
+     [
+      2194923,
+      19723856
+     ]
+    ],
+    "inference_time_s": 11.127188900001784,
+    "eval_time_s": 11.591893200000413,
+    "num_images": 1615,
+    "accuracy": 0.9439597725868225,
+    "precision": 0.893690824508667,
+    "recall": 0.8998610377311707,
+    "class_0_iou": 0.9259313941001892,
+    "class_1_iou": 0.8128510117530823,
+    "oil_spill_iou": 0.8128510117530823,
+    "mean_iou": 0.8693912029266357,
+    "mean_iou_no_background": 0.8128510117530823
+   },
+   "profile": {
+    "params_m": 86.488098,
+    "gflops": 52.57887744,
+    "ms_per_img_bf16": 6.4506162500038045,
+    "infer_peak_mem_mb_bf16": 2018.46826171875,
+    "ms_per_img_fp32": 8.25676625001961,
+    "infer_peak_mem_mb_fp32": 1815.7490234375
+   },
+   "compress_time_s": 0.1044768000010663,
+   "dense_attn_params": 28348416,
+   "tucker_attn_params": 9560448,
+   "compression": 2.965176527292445,
+   "n_layers": 12,
+   "example_ranks": [
+    [
+     "blocks.0.attn",
+     [
+      12,
+      128,
+      128
+     ]
+    ],
+    [
+     "blocks.1.attn",
+     [
+      12,
+      128,
+      128
+     ]
+    ],
+    [
+     "blocks.2.attn",
+     [
+      12,
+      128,
+      128
+     ]
+    ]
+   ]
+  }
+ },
+ "headline_level": "L3_h1_d1",
+ "tucker_frozen": {
+  "metrics": {
+   "f1": 0.8930688500404358,
+   "mean_f1": 0.9263453483581543,
+   "confusion_matrix": [
+    [
+     56447236,
+     2668225
+    ],
+    [
+     2082056,
+     19836723
+    ]
+   ],
+   "inference_time_s": 10.68144800000664,
+   "eval_time_s": 11.14128780000101,
+   "num_images": 1615,
+   "accuracy": 0.9413793683052063,
+   "precision": 0.8814383149147034,
+   "recall": 0.9050104022026062,
+   "class_0_iou": 0.92237788438797,
+   "class_1_iou": 0.8067971467971802,
+   "oil_spill_iou": 0.8067971467971802,
+   "mean_iou": 0.8645875453948975,
+   "mean_iou_no_background": 0.8067971467971802
+  },
+  "profile": {
+   "params_m": 80.589858,
+   "gflops": 48.76566528,
+   "ms_per_img_bf16": 5.970602499996858,
+   "infer_peak_mem_mb_bf16": 1985.62451171875,
+   "ms_per_img_fp32": 7.688472500012722,
+   "infer_peak_mem_mb_fp32": 1793.2490234375
+  },
+  "compress_time_s": 0.09593920000042999,
+  "dense_attn_params": 28348416,
+  "tucker_attn_params": 3662208,
+  "compression": 7.740798993394149,
+  "n_layers": 12,
+  "example_ranks": [
+   [
+    "blocks.0.attn",
+    [
+     12,
+     64,
+     64
+    ]
+   ],
+   [
+    "blocks.1.attn",
+    [
+     12,
+     64,
+     64
+    ]
+   ],
+   [
+    "blocks.2.attn",
+    [
+     12,
+     64,
+     64
+    ]
+   ]
+  ]
+ },
+ "tucker_unfrozen": {
+  "train_time_s": 1434.4210227999993,
+  "train_peak_mem_mb": 4456.5927734375,
+  "best_path": "C:\\Users\\hedil\\Desktop\\ELAB4SPACE\\Oil Spills\\checkpoints\\seg5\\transunet\\tucker_unfrozen_best.pt",
+  "best_iou": 0.8062644004821777,
+  "epochs": 10,
+  "metrics": {
+   "f1": 0.892742395401001,
+   "mean_f1": 0.925432562828064,
+   "confusion_matrix": [
+    [
+     55839116,
+     3276345
+    ],
+    [
+     1604848,
+     20313931
+    ]
+   ],
+   "inference_time_s": 9.915243200017358,
+   "eval_time_s": 10.345177200000762,
+   "num_images": 1615,
+   "accuracy": 0.9397638440132141,
+   "precision": 0.8611146211624146,
+   "recall": 0.9267820715904236,
+   "class_0_iou": 0.9196118712425232,
+   "class_1_iou": 0.8062644004821777,
+   "oil_spill_iou": 0.8062644004821777,
+   "mean_iou": 0.8629381656646729,
+   "mean_iou_no_background": 0.8062644004821777
+  },
+  "profile": {
+   "params_m": 80.589858,
+   "gflops": 48.76566528,
+   "ms_per_img_bf16": 5.773853749997215,
+   "infer_peak_mem_mb_bf16": 2919.35400390625,
+   "ms_per_img_fp32": 7.381710000004205,
+   "infer_peak_mem_mb_fp32": 2722.84033203125
+  },
+  "level": "L3_h1_d1"
+ }
+}

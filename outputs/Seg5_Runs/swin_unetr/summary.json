@@ -1,0 +1,422 @@
+{
+ "model": {
+  "key": "swin_unetr",
+  "pretty": "Swin-UNETR (2D)",
+  "hf_id": "MONAI/swin_unetr_btcv_segmentation",
+  "total_params_m": 25.13798
+ },
+ "baseline": {
+  "train_time_s": 1290.0016910000013,
+  "train_peak_mem_mb": 2251.60791015625,
+  "best_path": "C:\\Users\\hedil\\Desktop\\ELAB4SPACE\\Oil Spills\\checkpoints\\seg5\\swin_unetr\\baseline_best.pt",
+  "best_iou": 0.8040809631347656,
+  "epochs": 10,
+  "metrics": {
+   "f1": 0.8914023041725159,
+   "mean_f1": 0.924585223197937,
+   "confusion_matrix": [
+    [
+     55880848,
+     3234613
+    ],
+    [
+     1693415,
+     20225364
+    ]
+   ],
+   "inference_time_s": 10.671451999996862,
+   "eval_time_s": 11.129438500000106,
+   "num_images": 1615,
+   "accuracy": 0.9391857981681824,
+   "precision": 0.862122118473053,
+   "recall": 0.9227412939071655,
+   "class_0_iou": 0.9189586639404297,
+   "class_1_iou": 0.8040809631347656,
+   "oil_spill_iou": 0.8040809631347656,
+   "mean_iou": 0.8615198135375977,
+   "mean_iou_no_background": 0.8040809631347656
+  },
+  "profile": {
+   "params_m": 25.13798,
+   "gflops": 26.86322688,
+   "ms_per_img_bf16": 6.367167500002324,
+   "infer_peak_mem_mb_bf16": 839.19873046875,
+   "ms_per_img_fp32": 9.347506249991966,
+   "infer_peak_mem_mb_fp32": 1009.56591796875
+  }
+ },
+ "sweep": {
+  "L1_h1/3_d1/4": {
+   "metrics": {
+    "f1": 0.6478947997093201,
+    "mean_f1": 0.7066342234611511,
+    "confusion_matrix": [
+     [
+      37219889,
+      21895572
+     ],
+     [
+      924044,
+      20994735
+     ]
+    ],
+    "inference_time_s": 11.319912499997372,
+    "eval_time_s": 11.796687800000655,
+    "num_images": 1615,
+    "accuracy": 0.7183954119682312,
+    "precision": 0.4894983768463135,
+    "recall": 0.9578423500061035,
+    "class_0_iou": 0.6199232935905457,
+    "class_1_iou": 0.4791748523712158,
+    "oil_spill_iou": 0.4791748523712158,
+    "mean_iou": 0.5495491027832031,
+    "mean_iou_no_background": 0.4791748523712158
+   },
+   "profile": {
+    "params_m": 23.61644,
+    "gflops": 24.791843328,
+    "ms_per_img_bf16": 6.831986250017508,
+    "infer_peak_mem_mb_bf16": 829.814453125,
+    "ms_per_img_fp32": 9.41117375000431,
+    "infer_peak_mem_mb_fp32": 1004.55419921875
+   },
+   "compress_time_s": 0.38015619999896444,
+   "dense_attn_params": 1572480,
+   "tucker_attn_params": 50940,
+   "compression": 30.869257950530034,
+   "n_layers": 8,
+   "example_ranks": [
+    [
+     "net.swinViT.layers1.0.blocks.0.attn",
+     [
+      1,
+      4,
+      4
+     ]
+    ],
+    [
+     "net.swinViT.layers1.0.blocks.1.attn",
+     [
+      1,
+      4,
+      4
+     ]
+    ],
+    [
+     "net.swinViT.layers2.0.blocks.0.attn",
+     [
+      2,
+      4,
+      4
+     ]
+    ]
+   ]
+  },
+  "L2_h1/2_d1/2": {
+   "metrics": {
+    "f1": 0.8223905563354492,
+    "mean_f1": 0.8710958957672119,
+    "confusion_matrix": [
+     [
+      51349012,
+      7766449
+     ],
+     [
+      1187925,
+      20730854
+     ]
+    ],
+    "inference_time_s": 11.376536100011435,
+    "eval_time_s": 11.900134099998468,
+    "num_images": 1615,
+    "accuracy": 0.8894988298416138,
+    "precision": 0.7274671792984009,
+    "recall": 0.9458032846450806,
+    "class_0_iou": 0.8515112400054932,
+    "class_1_iou": 0.6983559727668762,
+    "oil_spill_iou": 0.6983559727668762,
+    "mean_iou": 0.7749335765838623,
+    "mean_iou_no_background": 0.6983559727668762
+   },
+   "profile": {
+    "params_m": 23.644924,
+    "gflops": 25.00199424,
+    "ms_per_img_bf16": 6.873648750001848,
+    "infer_peak_mem_mb_bf16": 831.3095703125,
+    "ms_per_img_fp32": 9.465485000009721,
+    "infer_peak_mem_mb_fp32": 1004.15771484375
+   },
+   "compress_time_s": 0.06314500000007683,
+   "dense_attn_params": 1572480,
+   "tucker_attn_params": 79424,
+   "compression": 19.798549556809025,
+   "n_layers": 8,
+   "example_ranks": [
+    [
+     "net.swinViT.layers1.0.blocks.0.attn",
+     [
+      2,
+      8,
+      8
+     ]
+    ],
+    [
+     "net.swinViT.layers1.0.blocks.1.attn",
+     [
+      2,
+      8,
+      8
+     ]
+    ],
+    [
+     "net.swinViT.layers2.0.blocks.0.attn",
+     [
+      3,
+      8,
+      8
+     ]
+    ]
+   ]
+  },
+  "L3_h1_d1": {
+   "metrics": {
+    "f1": 0.8859288692474365,
+    "mean_f1": 0.9204182624816895,
+    "confusion_matrix": [
+     [
+      55457789,
+      3657672
+     ],
+     [
+      1579940,
+      20338839
+     ]
+    ],
+    "inference_time_s": 11.458514799989644,
+    "eval_time_s": 11.948762199999692,
+    "num_images": 1615,
+    "accuracy": 0.9353653788566589,
+    "precision": 0.8475748300552368,
+    "recall": 0.9279184341430664,
+    "class_0_iou": 0.9137065410614014,
+    "class_1_iou": 0.7952175140380859,
+    "oil_spill_iou": 0.7952175140380859,
+    "mean_iou": 0.8544620275497437,
+    "mean_iou_no_background": 0.7952175140380859
+   },
+   "profile": {
+    "params_m": 23.73272,
+    "gflops": 25.477527552,
+    "ms_per_img_bf16": 6.960321250016932,
+    "infer_peak_mem_mb_bf16": 831.5966796875,
+    "ms_per_img_fp32": 9.522146250014885,
+    "infer_peak_mem_mb_fp32": 1004.42919921875
+   },
+   "compress_time_s": 0.058293699999921955,
+   "dense_attn_params": 1572480,
+   "tucker_attn_params": 167220,
+   "compression": 9.403659849300324,
+   "n_layers": 8,
+   "example_ranks": [
+    [
+     "net.swinViT.layers1.0.blocks.0.attn",
+     [
+      3,
+      16,
+      16
+     ]
+    ],
+    [
+     "net.swinViT.layers1.0.blocks.1.attn",
+     [
+      3,
+      16,
+      16
+     ]
+    ],
+    [
+     "net.swinViT.layers2.0.blocks.0.attn",
+     [
+      6,
+      16,
+      16
+     ]
+    ]
+   ]
+  },
+  "L4_h1_d2": {
+   "metrics": {
+    "f1": 0.8913149237632751,
+    "mean_f1": 0.9245543479919434,
+    "confusion_matrix": [
+     [
+      55904436,
+      3211025
+     ],
+     [
+      1715955,
+      20202824
+     ]
+    ],
+    "inference_time_s": 11.883926900018196,
+    "eval_time_s": 12.372118499999488,
+    "num_images": 1615,
+    "accuracy": 0.9391988515853882,
+    "precision": 0.8628579378128052,
+    "recall": 0.9217129945755005,
+    "class_0_iou": 0.9190059304237366,
+    "class_1_iou": 0.8039388060569763,
+    "oil_spill_iou": 0.8039388060569763,
+    "mean_iou": 0.8614723682403564,
+    "mean_iou_no_background": 0.8039388060569763
+   },
+   "profile": {
+    "params_m": 23.96312,
+    "gflops": 26.647314432,
+    "ms_per_img_bf16": 7.234021249996658,
+    "infer_peak_mem_mb_bf16": 832.82421875,
+    "ms_per_img_fp32": 10.737991249993684,
+    "infer_peak_mem_mb_fp32": 1005.52685546875
+   },
+   "compress_time_s": 0.056929099999251775,
+   "dense_attn_params": 1572480,
+   "tucker_attn_params": 397620,
+   "compression": 3.954730647351743,
+   "n_layers": 8,
+   "example_ranks": [
+    [
+     "net.swinViT.layers1.0.blocks.0.attn",
+     [
+      3,
+      32,
+      32
+     ]
+    ],
+    [
+     "net.swinViT.layers1.0.blocks.1.attn",
+     [
+      3,
+      32,
+      32
+     ]
+    ],
+    [
+     "net.swinViT.layers2.0.blocks.0.attn",
+     [
+      6,
+      32,
+      32
+     ]
+    ]
+   ]
+  }
+ },
+ "headline_level": "L3_h1_d1",
+ "tucker_frozen": {
+  "metrics": {
+   "f1": 0.8859288692474365,
+   "mean_f1": 0.9204182624816895,
+   "confusion_matrix": [
+    [
+     55457789,
+     3657672
+    ],
+    [
+     1579940,
+     20338839
+    ]
+   ],
+   "inference_time_s": 11.458514799989644,
+   "eval_time_s": 11.948762199999692,
+   "num_images": 1615,
+   "accuracy": 0.9353653788566589,
+   "precision": 0.8475748300552368,
+   "recall": 0.9279184341430664,
+   "class_0_iou": 0.9137065410614014,
+   "class_1_iou": 0.7952175140380859,
+   "oil_spill_iou": 0.7952175140380859,
+   "mean_iou": 0.8544620275497437,
+   "mean_iou_no_background": 0.7952175140380859
+  },
+  "profile": {
+   "params_m": 23.73272,
+   "gflops": 25.477527552,
+   "ms_per_img_bf16": 6.960321250016932,
+   "infer_peak_mem_mb_bf16": 831.5966796875,
+   "ms_per_img_fp32": 9.522146250014885,
+   "infer_peak_mem_mb_fp32": 1004.42919921875
+  },
+  "compress_time_s": 0.058293699999921955,
+  "dense_attn_params": 1572480,
+  "tucker_attn_params": 167220,
+  "compression": 9.403659849300324,
+  "n_layers": 8,
+  "example_ranks": [
+   [
+    "net.swinViT.layers1.0.blocks.0.attn",
+    [
+     3,
+     16,
+     16
+    ]
+   ],
+   [
+    "net.swinViT.layers1.0.blocks.1.attn",
+    [
+     3,
+     16,
+     16
+    ]
+   ],
+   [
+    "net.swinViT.layers2.0.blocks.0.attn",
+    [
+     6,
+     16,
+     16
+    ]
+   ]
+  ]
+ },
+ "tucker_unfrozen": {
+  "train_time_s": 1344.1807613,
+  "train_peak_mem_mb": 2657.1083984375,
+  "best_path": "C:\\Users\\hedil\\Desktop\\ELAB4SPACE\\Oil Spills\\checkpoints\\seg5\\swin_unetr\\tucker_unfrozen_best.pt",
+  "best_iou": 0.8047784566879272,
+  "epochs": 10,
+  "metrics": {
+   "f1": 0.8918307423591614,
+   "mean_f1": 0.9247323274612427,
+   "confusion_matrix": [
+    [
+     55761379,
+     3354082
+    ],
+    [
+     1579722,
+     20339057
+    ]
+   ],
+   "inference_time_s": 11.519810800014966,
+   "eval_time_s": 11.993439300000318,
+   "num_images": 1615,
+   "accuracy": 0.939114511013031,
+   "precision": 0.8584364652633667,
+   "recall": 0.9279282689094543,
+   "class_0_iou": 0.9187118411064148,
+   "class_1_iou": 0.8047784566879272,
+   "oil_spill_iou": 0.8047784566879272,
+   "mean_iou": 0.8617451190948486,
+   "mean_iou_no_background": 0.8047784566879272
+  },
+  "profile": {
+   "params_m": 23.73272,
+   "gflops": 25.477527552,
+   "ms_per_img_bf16": 6.970253750000666,
+   "infer_peak_mem_mb_bf16": 1115.33447265625,
+   "ms_per_img_fp32": 9.746703750010965,
+   "infer_peak_mem_mb_fp32": 1288.72998046875
+  },
+  "level": "L3_h1_d1"
+ }
+}
